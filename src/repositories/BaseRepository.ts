@@ -14,9 +14,7 @@ export default abstract class BaseRepository {
 
     public async getMany(params: Object) {
 
-        return DB.getConnection()
-            .getRepository(this.entity.constructor.name)
-            .createQueryBuilder("a")
+        return this.getQueryBuilder('x')
             .getMany();
     }
 
@@ -99,6 +97,13 @@ export default abstract class BaseRepository {
 
     public fill(data: Object) {
         return this.build(data).entity;
+    }
+
+    public getQueryBuilder(alias: string) {
+
+        return DB.getConnection()
+            .getRepository(this.entity.constructor.name)
+            .createQueryBuilder(alias);
     }
 
     protected validate() {

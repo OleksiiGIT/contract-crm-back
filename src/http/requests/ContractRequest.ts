@@ -7,6 +7,8 @@ export default class ContractRequest extends BaseRequest {
         super(
             joi.object({
                 name: joi.string().min(1).max(256).optional(),
+                endFrom: joi.date().iso().optional(),
+                endTo: joi.date().iso().optional(),
             }),
 
             joi.object({

@@ -1,14 +1,18 @@
 import {
     Column,
-    Entity,
+    Entity, OneToMany,
     PrimaryGeneratedColumn,
 } from "typeorm";
 import {
-    IsDate,
-    Length,
+    IsBoolean,
+    IsDate, IsNumber,
+    Length, Max, Min,
     ValidateIf
 } from "class-validator";
 import IEntity from "../../interfaces/IEntity";
+import {ContractStatuses} from "../../enums/ContractStatuses";
+import AgentContractEntity from "./AgentContractEntity";
+import DocumentEntity from "./DocumentEntity";
 
 
 @Entity("contracts", {schema: "main"})
@@ -29,6 +33,69 @@ export default class ContractEntity implements IEntity {
     name: string;
 
 
+    @IsNumber()
+    @Min(1)
+    @Column("int", {
+        nullable: false,
+        name: "number"
+    })
+    number: number;
+
+
+    @IsDate()
+    @Column("timestamp", {
+        nullable: false,
+        name: "start_at"
+    })
+    start: Date;
+
+
+    @IsDate()
+    @Column("timestamp", {
+        nullable: false,
+        name: "end_at"
+    })
+    end: Date;
+
+
+    @IsDate()
+    @Column("timestamp", {
+        nullable: false,
+        name: "signed_at"
+    })
+    signedAt: Date;
+
+
+    @Length(3, 256)
+    @Column("varchar", {
+        nullable: false,
+        name: "type"
+    })
+    type: string;
+
+
+    @ValidateIf(o => o.status)
+    @IsNumber()
+    @Min(ContractStatuses.Created)
+    @Max(ContractStatuses.Finished)
+    @Column("smallint", {
+        nullable: false,
+        name: "status",
+        default: ContractStatuses.Created
+    })
+    status: ContractStatuses;
+
+
+    @ValidateIf(o => o.signed)
+    @IsBoolean()
+    @Column("bool", {
+        nullable: false,
+        name: "signed_by_agent",
+        default: false
+    })
+    signed: boolean;
+
+
     @IsDate()
     @Column("timestamp", {
         nullable: false,
@@ -45,4 +112,11 @@ export default class ContractEntity implements IEntity {
         name: "updated_at"
     })
     updated: Date | null;
+
+
+    @OneToMany(() => AgentContractEntity, (item) => item.contracts)
+    agentContracts: AgentContractEntity[];
+
+    @OneToMany(() => DocumentEntity, (item) => item.contract)
+    documents: DocumentEntity[];
 }
